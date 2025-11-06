@@ -13,6 +13,13 @@ from .jsonrpc.jsonrpc2 import JSONRPC20Response
 from .jsonrpc.exceptions import JSONRPCServerError
 from .jsonrpc import six
 
+from poco.logger import get_logger
+import logging
+
+LOGGING = get_logger(__name__)
+LOGGING.setLevel(logging.DEBUG)
+
+
 
 DEBUG = False
 BACKEND_UPDATE = False
@@ -97,9 +104,7 @@ class AsyncResponse(object):
 
     def result(self, result):
         ret = JSONRPC20Response(_id=self.rid, result=result)
-        if DEBUG:
-            print("-->", ret)
-
+        LOGGING.debug("--> %s", ret)
         self.conn.send(ret.json)
 
     def error(self, error):
@@ -110,8 +115,7 @@ class AsyncResponse(object):
             "message": str(error),
         }
         ret = JSONRPC20Response( _id=self.rid, error=JSONRPCServerError(data=data)._data)
-        if DEBUG:
-            print("-->", ret)
+        LOGGING.debug("--> %s", ret)
         self.conn.send(ret.json)
 
 
@@ -143,8 +147,7 @@ class RpcAgent(object):
         self._id = six.text_type(uuid.uuid4())  # prepare next request id
         # send rpc
         req = json.dumps(payload)
-        if DEBUG:
-            print("-->", req)
+        LOGGING.debug("--> %s", req)
         # init cb
         cb = Callback(rid, self)
         self._callbacks[rid] = cb
@@ -159,8 +162,7 @@ class RpcAgent(object):
             # py3里 json 只接受str类型，py2没有这个限制
             msg = msg.decode('utf-8')
         data = json.loads(msg)
-        if DEBUG:
-            print("<--", data)
+        LOGGING.debug("--> %s", data)
         if "method" in data:
             # rpc request
             message_type = self.REQUEST

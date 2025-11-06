@@ -3,6 +3,7 @@ from .simplerpc import RpcAgent, RpcConnectionError
 from . import simplerpc
 import warnings
 import time
+import logging
 
 
 class RpcClient(RpcAgent):
@@ -69,8 +70,8 @@ class RpcClient(RpcAgent):
 
     @property
     def DEBUG(self):
-        return simplerpc.DEBUG
+        return simplerpc.LOGGING.level == logging.DEBUG
 
     @DEBUG.setter
     def DEBUG(self, value):
-        simplerpc.DEBUG = value
+        simplerpc.LOGGING.setLevel(logging.DEBUG if value else logging.INFO)
