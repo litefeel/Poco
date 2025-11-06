@@ -22,7 +22,7 @@ LOGGING.setLevel(logging.DEBUG)
 
 
 DEBUG = False
-BACKEND_UPDATE = False
+BACKEND_UPDATE = True
 
 
 class Callback(object):
