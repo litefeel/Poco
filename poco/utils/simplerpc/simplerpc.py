@@ -154,8 +154,8 @@ class RpcAgent(object):
         return req, cb
 
     def handle_request(self, req):
-        res = JSONRPCResponseManager.handle(req, dispatcher).data
-        return res
+        respone = JSONRPCResponseManager.handle(req, dispatcher)
+        return respone.data if respone else None
 
     def handle_message(self, msg, conn):
         if isinstance(msg, six.binary_type):
@@ -168,6 +168,9 @@ class RpcAgent(object):
             message_type = self.REQUEST
             result = self.handle_request(msg)
 
+            if result is None:
+                return
+            
             if isinstance(result.get("result"), AsyncResponse):
                 result["result"].setup(conn, result["id"])
             else:
