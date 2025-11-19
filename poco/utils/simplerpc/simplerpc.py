@@ -129,6 +129,7 @@ class RpcAgent(object):
         super(RpcAgent, self).__init__()
         self._id = six.text_type(uuid.uuid4())
         self._callbacks = {}
+        self._IsRunning = False
 
     def call(self, *args, **kwargs):
         raise NotImplementedError
@@ -197,16 +198,25 @@ class RpcAgent(object):
 
     def run(self):
         def _run():
-            while True:
-                self.update()
+            while self._IsRunning:
+                try:
+                    self.update()
+                except Exception as ex:
+                    if self._IsRunning:
+                        LOGGING.exception("update error %s", ex)
+                    break
                 time.sleep(0.002)
         if BACKEND_UPDATE:
+            self._IsRunning = True
             from threading import Thread
             t = Thread(target=_run, name="update")
             t.daemon = True
             t.start()
         else:
             _run()
+
+    def stop(self):
+        self._IsRunning = False
 
     def console_run(self, local_dict=None):
         global BACKEND_UPDATE
